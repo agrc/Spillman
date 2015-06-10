@@ -4,14 +4,15 @@ The Scripts are as follows
 **Address Grid Create.txt**
 
 Public Sub addGrid()
-    'PURPOSE
-    'Generates an Address Grid for an area or a county from a specified origin
-    'INPUT:
-    'need two layers
-    'top layer is empty polyline featureclass with a field called "Label"
-    'second layer is polygon layer with a single county or area selected
-    'change values below for origin x,y and increment x,y
-    'AGRC-BG  5/19/05
+   
+    *PURPOSE*
+    *Generates an Address Grid for an area or a county from a specified origin*
+    *INPUT:*
+    *need two layers*
+    *top layer is empty polyline featureclass with a field called "Label"*
+    *second layer is polygon layer with a single county or area selected*
+    *change values below for origin x,y and increment x,y*
+    *AGRC-BG  5/19/05*
 
 
     Dim originX As Double
