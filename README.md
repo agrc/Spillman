@@ -1,7 +1,7 @@
 # Spillman
 Spillman scripts
 
-The Scripts needed are;
+The Scripts needed are
 1. Address Grid Create
 2. Centerline Editing Address Range Split
 3. Create Reverse Alias List Revised
