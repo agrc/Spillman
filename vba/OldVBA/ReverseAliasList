@@ -1,0 +1,233 @@
+Public Sub numericStyleStreetName_FindAliases()
+    
+    Dim startTime As Date
+    Dim sortStartTime As Date
+    Dim sortEndTime As Date
+    Dim endTime As Date
+    startTime = Now
+    
+    'Set parameters
+    Dim outFileLocation As String
+    Dim cityFieldName, streetFieldName, aliasFieldName As String
+    Dim layerIndexNum As Integer
+    
+    outFileLocation = "C:\Users\dbuell\Documents\spillman_alias.csv"
+    cityFieldName = "LCITYCD"
+    streetFieldName = "STREET"
+    aliasFieldName = "SALIAS1"
+    layerIndexNum = 0
+    
+    'Get reference to current ArcMap session
+    Dim pMxDoc As IMxDocument
+    Dim pMap As IMap
+    Set pMxDoc = ThisDocument
+    Set pMap = pMxDoc.FocusMap
+    
+    'Get reference to street layer
+    Dim pFLayer As IFeatureLayer
+    Dim pFClass As IFeatureClass
+    Dim pTable As ITable
+    Set pFLayer = pMap.Layer(layerIndexNum)
+    Set pFClass = pFLayer.FeatureClass
+    Set pTable = pFClass ' QI
+    
+    sortStartTime = Now
+    
+    'Sort all rows in street table with NUMERIC STYLE STREET NAMES
+    Dim pNumTS As ITableSort
+    Dim pNumQF As IQueryFilter
+    Set pNumTS = New TableSort
+    Set pNumTS.Table = pTable
+    Set pNumTS.QueryFilter = Nothing
+    pNumTS.Fields = (cityFieldName & "," & streetFieldName & "," & aliasFieldName)
+    pNumTS.Ascending(cityFieldName) = True
+    pNumTS.Ascending(aliasFieldName) = True
+    pNumTS.Ascending(streetFieldName) = True
+    pNumTS.CaseSensitive(cityFieldName) = False
+    pNumTS.CaseSensitive(aliasFieldName) = False
+    pNumTS.CaseSensitive(streetFieldName) = False
+    Set pNumQF = New QueryFilter
+    'where clause to query out numeric street names
+    pNumQF.WhereClause = "((position( '0',""" & streetFieldName & """ ) > 0 or position( '1',""" & streetFieldName & """ ) > 0 or " & _
+                         "position( '2',""" & streetFieldName & """ ) > 0 or position( '3',""" & streetFieldName & """ ) > 0 or " & _
+                         "position( '4',""" & streetFieldName & """ ) > 0 or position( '5',""" & streetFieldName & """ ) > 0 or " & _
+                         "position( '6',""" & streetFieldName & """ ) > 0  or position( '7',""" & streetFieldName & """ ) > 0 or " & _
+                         "position( '8',""" & streetFieldName & """ ) > 0 or position( '9',""" & streetFieldName & """ ) > 0) and " & _
+                         "(position('H',""" & streetFieldName & """) = 0 and  position('I',""" & streetFieldName & """) = 0 and " & _
+                         "position('U',""" & streetFieldName & """) = 0 and position('R',""" & streetFieldName & """) = 0 and " & _
+                         "position('B',""" & streetFieldName & """) = 0))"
+    Set pNumTS.QueryFilter = pNumQF
+    pNumTS.Sort Nothing
+    
+    'Sort all rows in street table with NUMERIC STYLE STREET NAMES
+    Dim pTxtTS As ITableSort
+    Dim pTxtQF As IQueryFilter
+    Set pTxtTS = New TableSort
+    Set pTxtTS.Table = pTable
+    Set pTxtTS.QueryFilter = Nothing
+    pTxtTS.Fields = (cityFieldName & "," & aliasFieldName & "," & streetFieldName)
+    pTxtTS.Ascending(cityFieldName) = True
+    pTxtTS.Ascending(aliasFieldName) = True
+    pTxtTS.Ascending(streetFieldName) = True
+    pTxtTS.CaseSensitive(cityFieldName) = False
+    pTxtTS.CaseSensitive(aliasFieldName) = False
+    pTxtTS.CaseSensitive(streetFieldName) = False
+    Set pTxtQF = New QueryFilter
+    'where clause for NON NUMERIC STREE names
+    pTxtQF.WhereClause = "not ((position( '0',""" & streetFieldName & """ ) > 0 or position( '1',""" & streetFieldName & """ ) > 0 or " & _
+                         "position( '2',""" & streetFieldName & """ ) > 0 or position( '3',""" & streetFieldName & """ ) > 0 or " & _
+                         "position( '4',""" & streetFieldName & """ ) > 0 or position( '5',""" & streetFieldName & """ ) > 0 or " & _
+                         "position( '6',""" & streetFieldName & """ ) > 0  or position( '7',""" & streetFieldName & """ ) > 0 or " & _
+                         "position( '8',""" & streetFieldName & """ ) > 0 or position( '9',""" & streetFieldName & """ ) > 0) and " & _
+                         "(position('H',""" & streetFieldName & """) = 0 and  position('I',""" & streetFieldName & """) = 0 and " & _
+                         "position('U',""" & streetFieldName & """) = 0 and position('R',""" & streetFieldName & """) = 0 and " & _
+                         "position('B',""" & streetFieldName & """) = 0))"
+    
+    Set pTxtTS.QueryFilter = pTxtQF
+    pTxtTS.Sort Nothing
+    
+    sortEndTime = Now
+    
+    Dim pTxtCursor As ICursor
+    Dim pTxtRow As IRow
+    Dim prevCity As String
+    Dim prevAlias As String
+    Dim prevStr As String
+    Dim currCity As String
+    Dim currAlias As String
+    Dim currStr As String
+    Dim first As Boolean
+    Dim pQF As IQueryFilter
+    Dim found As Boolean
+    Dim prevTxtStr As String
+    Dim currTxtStr As String
+    Dim currTxtCity As String
+    Dim currTxtAlias As String
+    Dim prevTxtAlias As String
+    Dim prevTxtCity As String
+    Dim txtOut As Boolean
+    Dim counter As Long
+    Dim numericStreetsCount As String
+    Dim matchFound As Boolean
+    Set pQF = New QueryFilter
+    prevCity = ""
+    prevAlias = ""
+    prevStr = ""
+    first = True
+    
+    'Get cursor to iterate thru rows returned by the numric street name tablesort
+    Dim pNumCursor As ICursor
+    Dim pNumRow As IRow
+    Set pNumCursor = pNumTS.Rows
+    Set pNumRow = pNumCursor.NextRow
+    
+    'Open text file for output and add field headers
+    Open outFileLocation For Output As #1
+    Print #1, "PREDIR,STREET,ALIAS,CITYCD,FROM,TO"
+    
+    
+    numericStreetsCount = CStr(pTable.RowCount(pNumQF))
+    
+    'Loop through numeric streets and when the street name changes, output alias recordst
+    Do Until pNumRow Is Nothing
+        counter = counter + 1
+        'Get attributes for current numeric street
+        currCity = pNumRow.Value(pNumRow.Fields.FindField(cityFieldName))
+        currAlias = pNumRow.Value(pNumRow.Fields.FindField(aliasFieldName))
+        currStr = pNumRow.Value(pNumRow.Fields.FindField(streetFieldName))
+                               
+        If currStr <> prevStr Or (currCity <> prevCity And currStr = prevStr) Then
+            'new street name encountered within current city from sorted numeric streets cursor
+            'now, search sorted named streets for streets using current numeric street as an alias
+            
+            found = False 'true when we have not gotten to the first matching record in the TxtCursor list
+            prevTxtStr = ""
+            prevTxtCity = ""
+            prevTxtAlias = ""
+            
+            Set pTxtCursor = pTxtTS.Rows
+            Set pTxtRow = pTxtCursor.NextRow
+            
+            'Loop through sorted NON NUMERIC Street names to find streets with current NUMERIC STREET NAME
+            'as their alias attribute
+            matchFound = False
+            Do Until pTxtRow Is Nothing
+                
+                currTxtCity = pTxtRow.Value(pTxtRow.Fields.FindField(cityFieldName))
+                currTxtStr = pTxtRow.Value(pTxtRow.Fields.FindField(streetFieldName))
+                currTxtAlias = pTxtRow.Value(pTxtRow.Fields.FindField(aliasFieldName))
+                
+                If currTxtCity = currCity Then
+                    
+                    If currTxtAlias = currStr Then
+                        'found a street with an alias = the current street name
+                        found = True
+
+                        If prevTxtStr <> currTxtStr Then
+                            'output row to alias table text file
+                            Debug.Print addSpaces(CStr(counter), 10, True) & "/" & addSpaces(numericStreetsCount, 10, False) _
+                                      & addSpaces(currCity, 5, False) & addSpaces(currStr, 10, False) & currTxtStr
+                            Print #1, "," & currTxtAlias & "," & currTxtStr & "," & currCity & "," & "0,0"
+                            matchFound = True
+                        End If
+                        
+                    End If
+                    
+                ElseIf found And currTxtCity <> currCity Then
+                    Exit Do
+                ElseIf found And currTxtAlias <> currStr Then
+                    Exit Do
+                End If
+                
+                prevTxtCity = currTxtCity
+                prevTxtAlias = currTxtAlias
+                prevTxtStr = currTxtStr
+                                  
+                Set pTxtRow = pTxtCursor.NextRow
+            
+            Loop
+    
+            If matchFound = False Then
+                Debug.Print addSpaces(CStr(counter), 10, True) & "/" & addSpaces(numericStreetsCount, 10, False)
+            End If
+        Else
+            Debug.Print addSpaces(CStr(counter), 10, True) & "/" & addSpaces(numericStreetsCount, 10, False)
+        End If
+        
+        prevCity = currCity
+        prevAlias = currAlias
+        prevStr = currStr
+    
+        first = False
+        Set pNumRow = pNumCursor.NextRow
+    Loop
+
+    Close #1
+    
+    endTime = Now
+    
+    Debug.Print "...sortseconds = " & DateDiff("s", sortStartTime, sortStartTime)
+    Debug.Print "...processseconds = " & DateDiff("s", sortEndTime, endTime)
+    Debug.Print "...totalseconds = " & DateDiff("s", startTime, endTime)
+    
+End Sub
+
+
+Public Function addSpaces(inValStr As String, desiredLen As Integer, addToFront As Boolean) As String
+    
+    Dim x As Long
+    addSpaces = inValStr
+    
+    x = Len(inValStr)
+    
+    Do Until x >= desiredLen
+        If addToFront Then
+            addSpaces = " " & addSpaces
+        Else
+            addSpaces = addSpaces & " "
+        End If
+        x = x + 1
+    Loop
+
+End Function
+
