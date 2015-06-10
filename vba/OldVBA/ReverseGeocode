@@ -1,0 +1,141 @@
+Private Sub reverseGeocodeSelectedPoints()
+
+    Dim addressLocatorPath As String
+    Dim addressLocatorName As String
+    Dim pointLayerIndex As Integer
+    Dim pointLayerMilepostFieldName As String
+    Dim commonPlacesTableName As String
+    Dim commonPlacesAddressFieldName As String
+    Dim commonPlacesAddNumBegFieldName As String
+    Dim commonPlacesAddNumEndFieldName As String
+    Dim commonPlacesStreetNameFieldName As String
+    Dim commonPlacesAliasFieldName As String
+    
+    
+    addressLocatorPath = "C:\E911\UintahBasin\Uintah_Basin_Spillman.gdb"
+    addressLocatorName = "UintahBasin"
+    pointLayerIndex = 3
+    pointLayerMilepostFieldName = "MM"
+    commonPlacesTableName = "uintah_basin_common_places"
+    commonPlacesAddressFieldName = "Address"
+    commonPlacesAddNumBegFieldName = "BegNumb"
+    commonPlacesAddNumEndFieldName = "EndNumb"
+    commonPlacesStreetNameFieldName = "Street"
+    commonPlacesAliasFieldName = "Alias"
+
+    Dim pMxDoc As IMxDocument
+    Dim pMap As IMap
+    Dim pTC As ITableCollection
+    Dim pFL As IFeatureLayer
+    Dim pFS As IFeatureSelection
+    Dim pFC As IFeatureClass
+    Dim pFeature As IFeature
+    Dim pFCursor As IFeatureCursor
+    Dim pFeatureSelection As IFeatureSelection
+    Dim pSelSet As ISelectionSet
+    
+    Dim pLocatorManager As esriLocation.ILocatorManager2
+    Dim pLocatorWorkspace As esriGeoDatabase.ILocatorWorkspace
+    Dim pReverseGeocoding As esriLocation.IReverseGeocoding
+    Dim pPoint As esriGeometry.IPoint
+    
+    Dim pAddressGeocoding As esriLocation.IAddressGeocoding
+    Dim pMatchFields As esriGeoDatabase.IFields
+    Dim pShapeField As esriGeoDatabase.IField
+    Dim pReverseGeocodingProperties As esriLocation.IReverseGeocodingProperties
+    Dim pAddressProperties As esriSystem.IPropertySet
+    Dim pAddressInputs As esriLocation.IAddressInputs
+    Dim pAddressFields As esriGeoDatabase.IFields
+    Dim lngAddressFieldIndex As Long
+    Dim pAddressField As esriGeoDatabase.IField
+      
+    '+++ get the Locator
+    Set pLocatorManager = New esriLocation.LocatorManager
+    Set pLocatorWorkspace = pLocatorManager.GetLocatorWorkspaceFromPath(addressLocatorPath)
+    Set pReverseGeocoding = pLocatorWorkspace.GetLocator(addressLocatorName)
+    If pLocatorWorkspace.Locators(esriAllTypes, "Address").count <= 0 Then
+        MsgBox ("Please add Geocoding Service to your document."), vbExclamation
+      End If
+      
+
+    Set pAddressGeocoding = pReverseGeocoding
+    Set pMatchFields = pAddressGeocoding.MatchFields
+    Set pShapeField = pMatchFields.Field(pMatchFields.FindField("Shape"))
+     
+    '+++ set the search tolerance for reverse geocoding
+    Set pReverseGeocodingProperties = pReverseGeocoding
+    pReverseGeocodingProperties.SearchDistance = 50
+    pReverseGeocodingProperties.SearchDistanceUnits = esriMeters
+    
+    Dim pCPTable As ITable
+    Dim pCPDataset As IDataset
+    Dim t As Integer
+    Dim found As Boolean
+    Dim pCPRow As IRow
+    Dim addPos As Integer
+    Dim addNum As String
+    Dim strName As String
+    Dim mmVal As String
+    
+    Set pMxDoc = ThisDocument
+    Set pMap = pMxDoc.FocusMap
+    Set pFL = pMap.Layer(pointLayerIndex)
+    Set pFS = pFL
+    Set pSelSet = pFS.SelectionSet
+    Set pTC = pMap
+    
+    found = False
+    For t = 0 To pTC.TableCount - 1
+        Set pCPDataset = pTC.Table(t)
+        If pCPDataset.Name = commonPlacesTableName Then
+            Set pCPTable = pCPDataset
+            found = True
+            Exit For
+        End If
+    Next t
+    
+    If found = False Then
+        MsgBox "Common Places table name not found"
+        Exit Sub
+    End If
+    
+    pSelSet.Search Nothing, True, pFCursor
+    Set pFeature = pFCursor.NextFeature
+    
+    Do Until pFeature Is Nothing
+    
+        Set pPoint = pFeature.Shape
+        mmVal = pFeature.Value(pFL.FeatureClass.FindField(pointLayerMilepostFieldName))
+        '+++ find the address nearest the the Point
+        Set pAddressProperties = pReverseGeocoding.ReverseGeocode(pPoint, False)
+
+        '+++ print the address properties
+        Set pAddressInputs = pReverseGeocoding
+        Set pAddressFields = pAddressInputs.AddressFields
+        For lngAddressFieldIndex = 0 To pAddressFields.FieldCount - 1
+            Set pAddressField = pAddressFields.Field(lngAddressFieldIndex)
+            If pAddressField.AliasName = "Street or Intersection" Then
+                'MsgBox pAddressProperties.GetProperty(pAddressField.Name)
+                Set pCPRow = pCPTable.CreateRow
+                pCPRow.Value(pCPTable.FindField(commonPlacesAddressFieldName)) = _
+                    pAddressProperties.GetProperty(pAddressField.Name)
+                    
+                addPos = InStr(pAddressProperties.GetProperty(pAddressField.Name), " ")
+                addNum = Left(pAddressProperties.GetProperty(pAddressField.Name), addPos - 1)
+                strName = Mid(pAddressProperties.GetProperty(pAddressField.Name), addPos + 1)
+                
+                pCPRow.Value(pCPTable.FindField(commonPlacesAddNumBegFieldName)) = addNum
+                pCPRow.Value(pCPTable.FindField(commonPlacesAddNumEndFieldName)) = addNum
+                pCPRow.Value(pCPTable.FindField(commonPlacesStreetNameFieldName)) = strName
+                pCPRow.Value(pCPTable.FindField(commonPlacesAliasFieldName)) = "MP" & mmVal
+                pCPRow.Store
+                Exit For
+            End If
+        Next lngAddressFieldIndex
+
+        Set pFeature = pFCursor.NextFeature
+        
+    Loop
+
+End Sub
+
