@@ -1,0 +1,119 @@
+Sub markDeadEndStreetFeaturesAsExceptions()
+
+  ' AGRC 06/28/2006, bgranberg@utah.gov
+  '
+  ' DESCRIPTION:
+  ' This script attempts to find dead end and cul de sac street
+  ' features that are responsible for creating dangle errors in a
+  ' geodatabase topology and mark them as exceptions. The area within
+  ' the buffer distance of each error is searched for street features.
+  ' If only one street feature is found, the error is likely a
+  ' legitimate dead end and the feature is marked as an exception.
+  '
+  ' REQUIREMENTS:
+  ' -- This script must be run in an edit session on a validated topology
+  ' with a no dangle topology rule defined.
+  '
+  ' NOTES:
+  ' -- Refresh data view after running script.
+  '
+  ' -- Edit session must be saved to persist edits in geodatabase. Check to
+  ' make sure results are satisfactory before saving.
+  '
+  ' SCRIPT PARAMETERS (SET THESE BEFORE RUNNING):
+
+  '  ***** If only one street feature is found wth in buffDist of error,
+  '  ***** the error gets marked as an exception. Setting this too low will
+  '  ***** mark real errors as exceptions.
+  Dim buffDist As Double
+  buffDist = 10 'in topology's feature dataset defined linear units
+  '  ***** Index Number of Roads Layer in TOC
+  Dim rdLayerIndexNumber As Integer
+  rdLayerIndexNumber = 1 'an index of 1 refers to the second layer in TOC
+
+
+
+  Dim pMxDoc As IMxDocument
+  Dim pMap As IMap
+  Set pMxDoc = ThisDocument
+  Set pMap = pMxDoc.FocusMap
+  Dim pRDFLayer As IFeatureLayer
+  Set pRDFLayer = pMap.Layer(rdLayerIndexNumber)
+
+  Dim GeoType As esriGeometryType
+  GeoType = esriGeometryPoint
+
+  Dim pTopologyExtension As ITopologyExtension
+  Dim pUID As New UID
+  Dim pEnumTopologyErrorFeature As IEnumTopologyErrorFeature
+  Dim pErrorContainer As IErrorFeatureContainer
+  Dim pTopoErrFeature As ITopologyErrorFeature
+  Dim pGeoDS As IGeoDataset
+  Dim pTopology As ITopology
+
+  Dim pRdFCursor As IFeatureCursor
+  Dim pRdFeature As IFeature
+  Dim pSF As ISpatialFilter
+  Dim pExcepTopOp As ITopologicalOperator
+  Dim pBuffPolygon As IPolygon
+  Dim rdCount As Integer
+  Dim pTopologyRuleContainer As ITopologyRuleContainer
+
+  pUID.Value = "esricore.TopologyExtension"
+  Set pTopologyExtension = Application.FindExtensionByCLSID(pUID)
+  Set pTopology = pTopologyExtension.CurrentTopology
+
+  Set pGeoDS = pTopology
+  Set pTopologyRuleContainer = pTopology
+
+  Dim pExcepFeat As IFeature
+  If pTopologyExtension.ActiveErrorCount = 0 Then
+    'MsgBox pTopologyExtension.ActiveErrorCount
+    Set pErrorContainer = pTopology
+    Set pEnumTopologyErrorFeature = pErrorContainer.ErrorFeaturesByGeometryType(pGeoDS.SpatialReference, GeoType, False)
+    pTopologyExtension.ClearActiveErrors esriTENone
+
+    Set pTopoErrFeature = pEnumTopologyErrorFeature.Next
+
+    pTopologyExtension.DelayEvents True
+
+    Do While Not pTopoErrFeature Is Nothing
+      If pTopoErrFeature.IsException = False Then
+        Set pExcepFeat = pTopoErrFeature
+        Set pExcepTopOp = pExcepFeat.Shape
+        Set pBuffPolygon = pExcepTopOp.Buffer(buffDist)
+        Set pSF = New SpatialFilter
+        Set pSF.Geometry = pBuffPolygon
+        pSF.SpatialRel = esriSpatialRelIntersects
+        Set pRdFCursor = pRDFLayer.Search(pSF, False)
+        Set pRdFeature = pRdFCursor.NextFeature
+        rdCount = 0
+        Do Until pRdFeature Is Nothing
+            rdCount = rdCount + 1
+            Set pRdFeature = pRdFCursor.NextFeature
+        Loop
+        If rdCount < 2 Then
+            pTopologyRuleContainer.PromoteToRuleException pTopoErrFeature
+        End If
+      End If
+      Set pTopoErrFeature = pEnumTopologyErrorFeature.Next
+    Loop
+    pTopologyExtension.TopologySelectionChanged
+    pTopologyExtension.DelayEvents False
+  Else
+    'MsgBox pTopologyExtension.ActiveErrorCount
+    pTopologyExtension.DelayEvents True
+
+    Dim i As Long
+    For i = 0 To pTopologyExtension.ActiveErrorCount - 1
+      If pTopologyExtension.ActiveError(i).IsException = False Then
+        If pTopologyExtension.ActiveError(i).ShapeType = GeoType Then
+          Set pExcepFeat = pTopologyExtension.ActiveError(i)
+        End If
+      End If
+    Next i
+    pTopologyExtension.TopologySelectionChanged
+    pTopologyExtension.DelayEvents False
+  End If
+End Sub
+
