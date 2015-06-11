@@ -9,4 +9,4 @@
 4. Mark Dead End Features as Exceptions - *Zach is starting*
 5. MSAG Style Output From Street Centerline Data - *Keaton may have completed this one*
 6. Reverse Geocode Selected Points
-7. Update Modified Date
+7. Update Modified Date - *Perhaps not needed*
