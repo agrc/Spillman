@@ -1,0 +1,109 @@
+Private m_bPopulate As Boolean
+Private m_EditEventChange As Boolean
+Private WithEvents m_pEditEvents As Editor
+
+Private Function MxDocument_OpenDocument() As Boolean
+    Dim pEditor As IEditor
+    Dim pUID As New UID
+    pUID = "esriCore.Editor"
+    Set pEditor = Application.FindExtensionByCLSID(pUID)
+    If pEditor Is Nothing Then
+        MsgBox "Unable to Enable UIC Custom Editing Environment", vbOKOnly, "ERROR...UIC Editing Environment"
+        Exit Function
+    End If
+    Set m_pEditEvents = pEditor
+    m_bPopulate = True
+    m_EditEventChange = False
+    MsgBox "Edit Event Field Population is Enabled", vbOKOnly, "AGRC Custom Editing..."
+End Function
+
+Private Sub m_pEditEvents_OnChangeFeature(ByVal obj As esriGeoDatabase.IObject)
+    If m_EditEventChange = False Then
+
+          Dim pRow As IRow
+          Set pRow = obj
+        
+          
+          If Not m_bPopulate Then Exit Sub
+          
+          Dim editedByFieldIndex As Integer
+          Dim modifiedOnFieldIndex As Integer
+          Dim mDateFieldIndex As Integer
+          Dim changeMade As Boolean
+          editedByFieldIndex = pRow.Fields.FindField("EditedBy")
+          modifiedOnFieldIndex = pRow.Fields.FindField("ModifiedOn")
+          mDateFieldIndex = pRow.Fields.FindField("MODIFYDATE")
+          
+          changeMade = False
+          
+          If editedByFieldIndex > 0 Then
+            pRow.Value(editedByFieldIndex) = Environ("USERNAME")
+            changeMade = True
+          End If
+          
+          If modifiedOnFieldIndex > 0 Then
+            pRow.Value(modifiedOnFieldIndex) = Now
+            changeMade = True
+          End If
+          
+          If mDateFieldIndex > 0 Then
+            pRow.Value(mDateFieldIndex) = Now
+            changeMade = True
+          End If
+          
+          If changeMade Then
+            m_EditEventChange = True
+            pRow.Store
+          End If
+    End If
+    m_EditEventChange = False
+End Sub
+
+Private Sub m_pEditEvents_OnCreateFeature(ByVal obj As esriGeoDatabase.IObject)
+          'MsgBox Now
+            
+  Dim pRow As IRow
+  Dim CreatedOnFieldIndex As Integer
+  Dim modifiedOnFieldIndex As Integer
+  Dim editedByFieldIndex As Integer
+  Dim mDateFieldIndex As Integer
+  Dim changeMade As Boolean
+  
+  Set pRow = obj
+  
+  If Not m_bPopulate Then Exit Sub
+  
+  CreatedOnFieldIndex = pRow.Fields.FindField("CreatedOn")
+  modifiedOnFieldIndex = pRow.Fields.FindField("ModifiedOn")
+  editedByFieldIndex = pRow.Fields.FindField("EditedBy")
+  mDateFieldIndex = pRow.Fields.FindField("AGRC_MDATE")
+  
+
+  changeMade = False
+  
+  If modifiedOnFieldIndex > 0 Then
+    pRow.Value(modifiedOnFieldIndex) = Now
+    changeMade = True
+  End If
+  
+  If mDateFieldIndex > 0 Then
+    pRow.Value(mDateFieldIndex) = Now
+    changeMade = True
+  End If
+  
+  If CreatedOnFieldIndex > 0 Then
+    pRow.Value(CreatedOnFieldIndex) = Now
+    changeMade = True
+  End If
+  
+  If editedByFieldIndex > 0 Then
+    pRow.Value(editedByFieldIndex) = Environ("USERNAME")
+    changeMade = True
+  End If
+  
+  If changeMade Then
+    m_EditEventChange = True
+    pRow.Store
+  End If
+  m_EditEventChange = False
+End Sub
