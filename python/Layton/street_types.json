@@ -1,0 +1,321 @@
+{
+    "Aly": [
+        "Allee",
+        "Alley",
+        "Ally",
+        "Aly"
+    ],
+    "Ave": [
+        "Av",
+        "Ave",
+        "Aven",
+        "Avenu",
+        "Avenue",
+        "Avn",
+        "Avnue"
+    ],
+    "Bay": [],
+    "Blvd": [
+        "Blvd",
+        "Boul",
+        "Boulevard",
+        "Boulv"
+    ],
+    "Bnd": [
+        "Bend",
+        "Bnd"
+    ],
+    "Cir": [
+        "Cir",
+        "Circ",
+        "Circl",
+        "Circle",
+        "Crcl",
+        "Crcle"
+    ],
+    "Cor": [
+        "Cor",
+        "Corner"
+    ],
+    "Cres": [
+        "Crecent",
+        "Cres",
+        "Crescent",
+        "Cresent",
+        "Crscnt",
+        "Crsent",
+        "Crsnt"
+    ],
+    "Crk": [
+        "Ck",
+        "Cr",
+        "Creek",
+        "Crk"
+    ],
+    "Ct": [
+        "Court",
+        "Crt",
+        "Ct"
+    ],
+    "Ctr": [
+        "Cen",
+        "Cent",
+        "Center",
+        "Centr",
+        "Centre",
+        "Cnter",
+        "Cntr",
+        "Ctr"
+    ],
+    "Cv": [
+        "Cove",
+        "Cv"
+    ],
+    "Cyn": [
+        "Canyn",
+        "Canyon",
+        "Cnyn",
+        "Cyn"
+    ],
+    "Dr": [
+        "Driv",
+        "Drive",
+        "Drv",
+        "Dr"
+    ],
+    "Est": [
+        "Est",
+        "Estate"
+    ],
+    "Ests": [
+        "Estates",
+        "Ests"
+    ],
+    "Expy": [
+        "Exp",
+        "Expr",
+        "Express",
+        "Expressway",
+        "Expw",
+        "Expy"
+    ],
+    "Flt": [
+        "Flat",
+        "Flt"
+    ],
+    "Frk": [
+        "Fork",
+        "Frk"
+    ],
+    "Fwy": [
+        "Freeway",
+        "Freewy",
+        "Frway",
+        "Frwy",
+        "Fwy"
+    ],
+    "Gln": [
+        "Glen",
+        "Gln"
+    ],
+    "Grv": [
+        "Grov",
+        "Grove",
+        "Grv"
+    ],
+    "Gtwy": [
+        "Gateway",
+        "Gatewy",
+        "Gatway",
+        "Gtway",
+        "Gtwy"
+    ],
+    "Hl": [
+        "Hill",
+        "Hl"
+    ],
+    "Holw": [
+        "Hllw",
+        "Hollow",
+        "Hollows",
+        "Holw",
+        "Holws"
+    ],
+    "Hts": [
+        "Height",
+        "Heights",
+        "Hgts",
+        "Ht",
+        "Hts"
+    ],
+    "Hwy": [
+        "Highway",
+        "Highwy",
+        "Hiway",
+        "Hiwy",
+        "Hway",
+        "Hwy"
+    ],
+    "Jct": [
+        "Jct",
+        "Jction",
+        "Jctn",
+        "Junction",
+        "Junctn",
+        "Juncton"
+    ],
+    "Ln": [
+        "La",
+        "Lane",
+        "Lanes",
+        "Ln"
+    ],
+    "Lndg": [
+        "Landing",
+        "Lndg",
+        "Lndng"
+    ],
+    "Loop": [
+        "Loop",
+        "Loops"
+    ],
+    "Mdw": [
+        "Mdw",
+        "Meadow"
+    ],
+    "Mdws": [
+        "Mdws",
+        "Meadows",
+        "Medows"
+    ],
+    "Mnr": [
+        "Manor",
+        "Mnr"
+    ],
+    "Park": [
+        "Park",
+        "Pk",
+        "Prk",
+        "Parks"
+    ],
+    "Pass": [
+        "Pass"
+    ],
+    "Path": [
+        "Path",
+        "Paths"
+    ],
+    "Pkwy": [
+        "Parkway",
+        "Parkwy",
+        "Pkway",
+        "Pkwy",
+        "Pky",
+        "Parkways",
+        "Pkwys"
+    ],
+    "Pl": [
+        "Pl",
+        "Place"
+    ],
+    "Plz": [
+        "Plaza",
+        "Plza",
+        "Plz"
+    ],
+    "Pt": [
+        "Point",
+        "Pt"
+    ],
+    "Ramp": [
+        "Ramp"
+    ],
+    "Rd": [
+        "Rd",
+        "Road"
+    ],
+    "Rdg": [
+        "Rdg",
+        "Rdge",
+        "Ridge"
+    ],
+    "Rnch": [
+        "Ranch",
+        "Ranches",
+        "Rnch",
+        "Rnchs"
+    ],
+    "Row": [
+        "Row"
+    ],
+    "Rte": [
+        "Route"
+    ],
+    "Run": [
+        "Run"
+    ],
+    "Spur": [
+        "Spur",
+        "Spurs"
+    ],
+    "Sq": [
+        "Sq",
+        "Sqr",
+        "Sqre",
+        "Square",
+        "Squ"
+    ],
+    "St": [
+        "St",
+        "Strt",
+        "Str",
+        "Street"
+    ],
+    "Ter": [
+        "Ter",
+        "Terr",
+        "Terrace"
+    ],
+    "Trce": [
+        "Trace",
+        "Traces",
+        "Trce"
+    ],
+    "Trl": [
+        "Tr",
+        "Trails",
+        "Trl",
+        "Trls",
+        "Trail",
+        "Tl"
+    ],
+    "Vis": [
+        "Vist",
+        "Vista",
+        "Vsta",
+        "Vis",
+        "Vst"
+    ],
+    "Vlg": [
+        "Vill",
+        "Village",
+        "Villg",
+        "Villiage",
+        "Vlg",
+        "Villag"
+    ],
+    "Vw": [
+        "View",
+        "Vw"
+    ],
+    "Way": [
+        "Way",
+        "Wy"
+    ],
+    "Xing": [
+        "Crossing",
+        "Crssing",
+        "Crssng",
+        "Xing"
+    ]
+}

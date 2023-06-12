@@ -1,0 +1,14 @@
+ ## Weber special script
+ - `Weber_Rebuild_All_Service_Areas.py`
+   - This script rebuilds a bunch of service areas and republishes them to AGOL layers, which are then available as web maps.  The script uses getpass to prompt you to enter the UGRC AGOL account username/password.  The hosted feature layers and web maps are in the UGRC account's `911_CAD_Data` folder.
+   - It can be run whenever you update roads and QuickestRoute (takes 10 mins)
+   - Hosted Feature Layers
+      - Rescue Service Areas
+      - Fire Service Areas
+      - Paramedic Service Areas
+      - Ambulance Service Areas
+   - Web Maps
+      - Weber-Morgan Heavy Rescue Service Areas
+      - Weber-Morgan Fire Service Areas
+      - Weber-Morgan Paramedic Service Areas
+      - Weber-Morgan Ambulance Service Areas

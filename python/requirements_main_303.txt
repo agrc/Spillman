@@ -1,0 +1,7 @@
+python-levenshtein
+beautifulsoup4
+lxml
+psycopg2
+tqdm
+h3-py
+mercantile
